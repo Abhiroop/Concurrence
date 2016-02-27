@@ -10,6 +10,10 @@ public class Philosopher implements Runnable {
 	
 	int i;
 	
+	int eatCounter;
+	
+	int thinkCounter;
+	
 	private final CountDownLatch countDownLatch;
 	
 	public Philosopher(int i, CountDownLatch countDownLatch){
@@ -17,19 +21,27 @@ public class Philosopher implements Runnable {
 		this.leftFork = false;
 		this.rightFork = false;
 		this.countDownLatch = countDownLatch;
+		this.eatCounter = 0;
+		this.thinkCounter = 0;
 		
 	}
 	
 	public void startEating() throws InterruptedException{
-		System.out.println(i + " - Started Eating");
-		Thread.sleep(5000);
-		System.out.println(i + " - Finished Eating");
+		if(leftFork && rightFork){
+			System.out.println(i + " - Started Eating");
+			Thread.sleep(5000);
+			this.eatCounter++;
+			System.out.println(i + " - Finished Eating " + this.eatCounter + "times.");
+			setLeftFork(false);
+			setRightFork(false);
+		}
 	}
 	
 	public void startThinking() throws InterruptedException{
 		System.out.println(i + " - Started Thinking");
 		Thread.sleep(5000);
-		System.out.println(i + " - Finished Thinking");
+		this.thinkCounter++;
+		System.out.println(i + " - Finished Thinking " + this.thinkCounter + "times.");
 	}
 	
 	public boolean isLeftFork() {
