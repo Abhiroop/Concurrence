@@ -30,14 +30,14 @@ public class Philosopher implements Runnable {
 	}
 	
 	public void startEating() throws InterruptedException{
+		pickupFork();
 		if(leftFork && rightFork){
-			pickupFork();
 			System.out.println(id + " - Started Eating");
 			Thread.sleep(5000);
 			this.eatCounter++;
 			System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
+			dropFork();
 		}
-		dropFork();
 		startThinking();
 	}
 	
