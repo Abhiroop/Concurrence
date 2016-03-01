@@ -16,7 +16,7 @@ public class Philosopher implements Runnable {
 	
 	private final CountDownLatch countDownLatch;
 	
-	RoundNo roundNo;
+	Guard guard;
 	
 	private boolean forks[];
 	
@@ -34,7 +34,7 @@ public class Philosopher implements Runnable {
 		
 	}
 	
-	public Philosopher(int id, CountDownLatch countDownLatch, boolean forks[], RoundNo roundNo){
+	public Philosopher(int id, CountDownLatch countDownLatch, boolean forks[], Guard guard){
 		this.id=id;
 		this.leftFork = false;
 		this.rightFork = false;
@@ -42,7 +42,7 @@ public class Philosopher implements Runnable {
 		this.eatCounter = 0;
 		this.thinkCounter = 0;
 		this.forks = forks;
-		this.roundNo = roundNo;
+		this.guard = guard;
 	}
 	
 	public void startEating() throws InterruptedException{
@@ -75,6 +75,7 @@ public class Philosopher implements Runnable {
 			forks[0] = true;
 		}
 	}
+	
 
 	private void pickupFork() {
 		
@@ -93,6 +94,8 @@ public class Philosopher implements Runnable {
 			forks[0] = false;
 		}
 	}
+	
+
 
 	public void startThinking() throws InterruptedException{
 		Thread.sleep(5000);
@@ -131,31 +134,19 @@ public class Philosopher implements Runnable {
 		}
 		
 	}
+	
+	
 
-	private void startSmartEating() throws InterruptedException {
-		if(roundNo.getRoundNo()%2==0 && getId()%2==0){
-			pickupFork();
-			if(leftFork && rightFork){
-				System.out.println(id + " - Started Eating");
-				Thread.sleep(5000);
-				this.eatCounter++;
-				System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
-				dropFork();
-				this.thinkCounter=0;
-			}
+	private void startSmartEating() throws InterruptedException{
+		
+		boolean state = guard.requestResource(getId());
+		if(state){
+			System.out.println(id + " - Started Eating");
+			Thread.sleep(5000);
+			this.eatCounter++;
+			System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
+			guard.submitResource(getId());
 		}
-		if(roundNo.getRoundNo()%2!=0 && getId()%2!=0){
-			pickupFork();
-			if(leftFork && rightFork){
-				System.out.println(id + " - Started Eating");
-				Thread.sleep(5000);
-				this.eatCounter++;
-				System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
-				dropFork();
-				this.thinkCounter=0;
-			}
-		}
-		roundNo.increment();
 		startThinking();
 		
 	}

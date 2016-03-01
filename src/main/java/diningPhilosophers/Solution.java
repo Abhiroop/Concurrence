@@ -16,18 +16,19 @@ public class Solution {
 		boolean[] forks = new boolean[NO_OF_PHILOSOPHERS];
 
 		Arrays.fill(forks, true);
+		
+		Guard guard = new GuardImpl(forks,philosopherList);
 
 		final CountDownLatch countDownLatch = new CountDownLatch(NO_OF_PHILOSOPHERS);
-		
-		RoundNo roundNo = new RoundNo(NO_OF_PHILOSOPHERS);
 
 		for(int i=0;i<NO_OF_PHILOSOPHERS;i++){
-			Philosopher philosopher = new Philosopher(i,countDownLatch, forks, roundNo);
+			Philosopher philosopher = new Philosopher(i,countDownLatch, forks, guard);
 			philosopher.setSmartPhilosopher(true);
 			Thread thread = new Thread(philosopher);
 			philosopherList.add(thread);
 		}
 
+		
 		philosopherList.forEach(Thread::start);
 
 		try{
