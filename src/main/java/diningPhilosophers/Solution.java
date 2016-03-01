@@ -6,22 +6,24 @@ import java.util.concurrent.CountDownLatch;
 
 import com.google.common.collect.Lists;
 
-public class Controller {
-
+public class Solution {
+	
 	public static final int NO_OF_PHILOSOPHERS = 5;
-
-	public static void main(String args[]){
-
+	
+	public static void main(String[] args) {
 		List<Thread> philosopherList=Lists.newArrayList();
-		
+
 		boolean[] forks = new boolean[NO_OF_PHILOSOPHERS];
-		
+
 		Arrays.fill(forks, true);
 
 		final CountDownLatch countDownLatch = new CountDownLatch(NO_OF_PHILOSOPHERS);
+		
+		RoundNo roundNo = new RoundNo(NO_OF_PHILOSOPHERS);
 
 		for(int i=0;i<NO_OF_PHILOSOPHERS;i++){
-			Philosopher philosopher = new Philosopher(i,countDownLatch, forks);
+			Philosopher philosopher = new Philosopher(i,countDownLatch, forks, roundNo);
+			philosopher.setSmartPhilosopher(true);
 			Thread thread = new Thread(philosopher);
 			philosopherList.add(thread);
 		}
@@ -33,6 +35,7 @@ public class Controller {
 		}catch(InterruptedException e){
 			e.printStackTrace();
 		}
+		
 
 	}
 

@@ -16,8 +16,13 @@ public class Philosopher implements Runnable {
 	
 	private final CountDownLatch countDownLatch;
 	
+	RoundNo roundNo;
+	
 	private boolean forks[];
 	
+	private boolean smartPhilosopher = false;
+	
+
 	public Philosopher(int id, CountDownLatch countDownLatch, boolean forks[]){
 		this.id=id;
 		this.leftFork = false;
@@ -25,8 +30,19 @@ public class Philosopher implements Runnable {
 		this.countDownLatch = countDownLatch;
 		this.eatCounter = 0;
 		this.thinkCounter = 0;
-		this.forks=forks;
+		this.forks = forks;
 		
+	}
+	
+	public Philosopher(int id, CountDownLatch countDownLatch, boolean forks[], RoundNo roundNo){
+		this.id=id;
+		this.leftFork = false;
+		this.rightFork = false;
+		this.countDownLatch = countDownLatch;
+		this.eatCounter = 0;
+		this.thinkCounter = 0;
+		this.forks = forks;
+		this.roundNo = roundNo;
 	}
 	
 	public void startEating() throws InterruptedException{
@@ -37,10 +53,12 @@ public class Philosopher implements Runnable {
 			this.eatCounter++;
 			System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
 			dropFork();
+			this.thinkCounter=0;
 		}
 		startThinking();
 	}
 	
+
 	private void dropFork() {
 		if(!forks[id]){
 			leftFork = false;
@@ -77,37 +95,68 @@ public class Philosopher implements Runnable {
 	}
 
 	public void startThinking() throws InterruptedException{
-		System.out.println(id + " - Started Thinking");
 		Thread.sleep(5000);
 		this.thinkCounter++;
-		System.out.println(id + " - Finished Thinking " + this.thinkCounter + " times.");
+		if(this.thinkCounter>=5)
+			System.out.println(id+" - I am starving!!");
 	}
 	
-	public boolean isLeftFork() {
-		return leftFork;
+	public int getId() {
+		return this.id;
 	}
-
-	public void setLeftFork(boolean leftFork) {
-		this.leftFork = leftFork;
-	}
-
-	public boolean isRightFork() {
-		return rightFork;
-	}
-
-	public void setRightFork(boolean rightFork) {
-		this.rightFork = rightFork;
+	
+	public void setSmartPhilosopher(boolean smartPhilosopher) {
+		this.smartPhilosopher = smartPhilosopher;
 	}
 
 	public void run() {
 		countDownLatch.countDown();
-		while(true){
-			try {
-				startEating();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		if(smartPhilosopher){
+			while(true){
+				try {
+					startSmartEating();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
+		else{
+			while(true){
+				try {
+					startEating();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+	}
+
+	private void startSmartEating() throws InterruptedException {
+		if(roundNo.getRoundNo()%2==0 && getId()%2==0){
+			pickupFork();
+			if(leftFork && rightFork){
+				System.out.println(id + " - Started Eating");
+				Thread.sleep(5000);
+				this.eatCounter++;
+				System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
+				dropFork();
+				this.thinkCounter=0;
+			}
+		}
+		if(roundNo.getRoundNo()%2!=0 && getId()%2!=0){
+			pickupFork();
+			if(leftFork && rightFork){
+				System.out.println(id + " - Started Eating");
+				Thread.sleep(5000);
+				this.eatCounter++;
+				System.out.println(id + " - Finished Eating " + this.eatCounter + " times.");
+				dropFork();
+				this.thinkCounter=0;
+			}
+		}
+		roundNo.increment();
+		startThinking();
 		
 	}
 
